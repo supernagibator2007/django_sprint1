@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import Http404
 
 posts = [
     {
@@ -50,10 +51,14 @@ def index(request):
     return render(request, template, context)
 
 
-def post_detail(request, id):
-    template = 'blog/detail.html'
-    context = {'post': posts[id]}
-    return render(request, template, context)
+def post_detail(request, post_id):
+    try:
+        template = 'blog/detail.html'
+        context = {'post': list(
+            filter(lambda x: x['id'] == post_id, posts))[0]}
+        return render(request, template, context)
+    except IndexError:
+        raise Http404(f'У нас нет информации по {post_id} месту')
 
 
 def category_posts(request, category_slug):
